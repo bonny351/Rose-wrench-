@@ -1,27 +1,18 @@
-# Rose Wrench Automotive — GitHub + Firebase
+# Rose Wrench Automotive — GitHub Ready
 
-## Pages
-- `index.html` — customer booking
-- `admin-signup.html` — first-admin bootstrap signup
-- `admin.html` — admin dashboard: calendar, job times, bays/hours, employees, reset
-- `employee.html` — employee schedule
-- `reset.html` — admin-only scheduler reset
+Upload the contents of this folder to a GitHub repository and enable GitHub Pages using GitHub Actions.
 
-## Firebase setup
-1. In Firebase Authentication, enable **Email/Password**.
-2. In Firestore, create the database.
-3. Publish `firestore.rules` in Firestore Rules.
-4. Open `admin-signup.html` and create the first admin. The Firestore rule is designed to allow only the first admin bootstrap; later public admin signup is blocked.
-5. After the first admin exists, create employee Authentication accounts in Firebase Console and create `scheduler_users/{uid}` documents with `{role:"employee", active:true, name, email, uid}`. For a production system, use a trusted backend/Cloud Function to automate employee creation and role changes.
+Pages:
+- `index.html` — customer booking/home
+- `admin-signup.html` — first admin signup
+- `admin.html` — admin dashboard
+- `employee.html` — employee page
+- `reset.html` — scheduler reset/setup
 
-## Important scheduling note
-The customer page performs a final availability check before creating a booking. For a production shop with simultaneous customers, use a Firestore transaction or slot-lock Cloud Function to make booking allocation atomic and eliminate race-condition double bookings.
+Firebase:
+1. Enable Email/Password Authentication.
+2. Deploy the included `firestore.rules`.
+3. Confirm the Firebase config matches your project.
+4. Create the first admin through `admin-signup.html`.
 
-## Firestore collections
-- `scheduler_jobs`
-- `scheduler_bays`
-- `scheduler_bookings`
-- `scheduler_users`
-- `scheduler_meta/adminBootstrap`
-
-The Firebase web config is the same project config supplied in the original Rose Wrench/bracelet page. Firebase web API keys are not treated as passwords; Firestore Rules and Authentication provide access control.
+The UI uses a black/red automotive theme. Test Authentication and Firestore in your Firebase project before public launch.
