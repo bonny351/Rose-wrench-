@@ -1,31 +1,27 @@
-# Rose Wrench Automotive — GitHub/Firebase site
+# Rose Wrench Automotive — GitHub + Firebase
 
 ## Pages
-- `index.html` — customer booking page
-- `ownership.html` — owner/admin dashboard (Firebase login required)
-- `employee.html` — employee read-only schedule (Firebase login required and email must be on the owner employee list)
-- `reset.html` — legacy reset/setup page; use the Reset tab inside the owner dashboard for the protected reset
-- `firestore.rules` — Firestore rules
-
-## Admin tabs
-1. **Calendar** — physical 30-minute bay calendar plus appointment list.
-2. **Job Times** — set the duration for every service.
-3. **Bays & Hours** — add/disable bays and set each bay's open/close time for each day.
-4. **Employees** — add employee login emails.
-5. **Reset** — owner-only reset of scheduler bookings/jobs/default bays.
+- `index.html` — customer booking
+- `admin-signup.html` — first-admin bootstrap signup
+- `admin.html` — admin dashboard: calendar, job times, bays/hours, employees, reset
+- `employee.html` — employee schedule
+- `reset.html` — admin-only scheduler reset
 
 ## Firebase setup
 1. In Firebase Authentication, enable **Email/Password**.
-2. Create the owner account there.
-3. Deploy `firestore.rules` in Firestore Rules.
-4. Open `ownership.html` through GitHub Pages and sign in with the owner account. The first owner account initializes `scheduler/settings.ownerUid`.
-5. Employees need their own Firebase Email/Password accounts. The owner then adds each employee's email in the Employees tab.
-6. Customers can book without an account.
+2. In Firestore, create the database.
+3. Publish `firestore.rules` in Firestore Rules.
+4. Open `admin-signup.html` and create the first admin. The Firestore rule is designed to allow only the first admin bootstrap; later public admin signup is blocked.
+5. After the first admin exists, create employee Authentication accounts in Firebase Console and create `scheduler_users/{uid}` documents with `{role:"employee", active:true, name, email, uid}`. For a production system, use a trusted backend/Cloud Function to automate employee creation and role changes.
 
-### Important
-The Firebase web config is client-side configuration and is not a password. Firestore Rules are what control access. For a production shop system, customer booking writes should eventually be moved behind a server/Cloud Function with transactional slot locking so two customers cannot race for the same bay/time.
+## Important scheduling note
+The customer page performs a final availability check before creating a booking. For a production shop with simultaneous customers, use a Firestore transaction or slot-lock Cloud Function to make booking allocation atomic and eliminate race-condition double bookings.
 
-## Firestore paths
-- `scheduler/settings`
-- `scheduler/settings/services/{serviceId}`
-- `scheduler/settings/bookings/{bookingId}`
+## Firestore collections
+- `scheduler_jobs`
+- `scheduler_bays`
+- `scheduler_bookings`
+- `scheduler_users`
+- `scheduler_meta/adminBootstrap`
+
+The Firebase web config is the same project config supplied in the original Rose Wrench/bracelet page. Firebase web API keys are not treated as passwords; Firestore Rules and Authentication provide access control.
