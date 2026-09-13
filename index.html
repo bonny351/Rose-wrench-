@@ -118,12 +118,12 @@ const db=getFirestore(app);
      Monday:{open:"08:00",close:"17:00"}, ...
    }
 
- scheduler/services/{serviceId}
+ scheduler/settings/services/{serviceId}
    name: "Oil Change"
    duration: 45
    active: true
 
- scheduler/bookings/{autoId}
+ scheduler/settings/bookings/{autoId}
    date: "2026-09-20"
    start: 540
    end: 585
@@ -168,9 +168,9 @@ async function loadSettings(){
  else await setDoc(doc(db,"scheduler","settings"),{hours});
 }
 async function loadServices(){
- const snap=await getDocs(collection(db,"scheduler","services"));
+ const snap=await getDocs(collection(db,"scheduler","settings","services"));
  if(snap.empty){
-   for(const s of DEFAULT_SERVICES) await addDoc(collection(db,"scheduler","services"),s);
+   for(const s of DEFAULT_SERVICES) await addDoc(collection(db,"scheduler","settings","services"),s);
    return loadServices();
  }
  services=snap.docs.map(d=>({id:d.id,...d.data()})).filter(s=>s.active!==false);
@@ -184,7 +184,7 @@ function renderServiceSelect(){
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 
 async function getBookings(date){
- const snap=await getDocs(query(collection(db,"scheduler","bookings"),where("date","==",date)));
+ const snap=await getDocs(query(collection(db,"scheduler","settings","bookings"),where("date","==",date)));
  return snap.docs.map(d=>({id:d.id,...d.data()}));
 }
 
@@ -225,7 +225,7 @@ $("bookingForm").addEventListener("submit",async e=>{
    msg($("customerMsg"),"That time was just booked. Please choose another time.",false);
    return renderAvailability();
  }
- await addDoc(collection(db,"scheduler","bookings"),{
+ await addDoc(collection(db,"scheduler","settings","bookings"),{
    date,start:selected,end,serviceId:service.id,serviceName:service.name,
    customerName:$("name").value.trim(),phone:$("phone").value.trim(),
    email:$("email").value.trim(),vehicle:$("vehicle").value.trim(),
@@ -248,27 +248,27 @@ $("saveHours").onclick=async()=>{
 };
 
 async function renderServicesAdmin(){
- const snap=await getDocs(collection(db,"scheduler","services"));
+ const snap=await getDocs(collection(db,"scheduler","settings","services"));
  const all=snap.docs.map(d=>({id:d.id,...d.data()}));
  $("services").innerHTML=all.map(s=>`<div class="service">
  <div><label>Job</label><input data-id="${s.id}" data-field="name" value="${escapeHtml(s.name||"")}"></div>
  <div><label>Minutes</label><input data-id="${s.id}" data-field="duration" type="number" min="5" step="5" value="${Number(s.duration)||60}"></div>
  <button class="secondary" data-delete="${s.id}" type="button">Delete</button></div>`).join("");
- $("services").querySelectorAll("[data-delete]").forEach(b=>b.onclick=async()=>{await deleteDoc(doc(db,"scheduler","services",b.dataset.delete));await loadServices();await renderServicesAdmin();});
+ $("services").querySelectorAll("[data-delete]").forEach(b=>b.onclick=async()=>{await deleteDoc(doc(db,"scheduler","settings","services",b.dataset.delete));await loadServices();await renderServicesAdmin();});
  $("services").querySelectorAll("[data-field]").forEach(i=>i.addEventListener("change",async()=>{
    const id=i.dataset.id, fields={};
    document.querySelectorAll(`[data-id="${id}"]`).forEach(x=>fields[x.dataset.field]=x.dataset.field==="duration"?Number(x.value):x.value.trim());
-   fields.active=true;await setDoc(doc(db,"scheduler","services",id),fields,{merge:true});
+   fields.active=true;await setDoc(doc(db,"scheduler","settings","services",id),fields,{merge:true});
    await loadServices();msg($("servicesMsg"),"Job saved.",true);
  }));
 }
 $("addService").onclick=async()=>{
- const r=await addDoc(collection(db,"scheduler","services"),{name:"New Job",duration:60,active:true});
+ const r=await addDoc(collection(db,"scheduler","settings","services"),{name:"New Job",duration:60,active:true});
  await loadServices();await renderServicesAdmin();
 };
 
 async function renderBookingsAdmin(){
- const snap=await getDocs(query(collection(db,"scheduler","bookings"),orderBy("date")));
+ const snap=await getDocs(query(collection(db,"scheduler","settings","bookings"),orderBy("date")));
  const all=snap.docs.map(d=>({id:d.id,...d.data()}));
  if(!all.length){$("bookings").innerHTML='<p class="muted">No appointments yet.</p>';return}
  $("bookings").innerHTML=all.map(b=>`<div class="booking">
@@ -278,7 +278,7 @@ async function renderBookingsAdmin(){
  <button class="secondary" data-cancel="${b.id}" type="button">Cancel</button>
  </div>`).join("");
  $("bookings").querySelectorAll("[data-cancel]").forEach(b=>b.onclick=async()=>{
-   if(confirm("Cancel this appointment?")){await deleteDoc(doc(db,"scheduler","bookings",b.dataset.cancel));renderBookingsAdmin();}
+   if(confirm("Cancel this appointment?")){await deleteDoc(doc(db,"scheduler","settings","bookings",b.dataset.cancel));renderBookingsAdmin();}
  });
 }
 

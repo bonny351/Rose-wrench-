@@ -26,8 +26,8 @@ ul{color:#ccc;line-height:1.7}
     <h2>What this page resets</h2>
     <ul>
       <li><code>scheduler/settings</code></li>
-      <li>All documents in <code>scheduler/services</code></li>
-      <li>All documents in <code>scheduler/bookings</code></li>
+      <li>All documents in <code>scheduler/settings/services</code></li>
+      <li>All documents in <code>scheduler/settings/bookings</code></li>
       <li>Then creates the default shop hours and services used by the scheduler.</li>
     </ul>
   </div>
@@ -110,10 +110,10 @@ async function resetScheduler(){
   log("Resetting…");
 
   try{
-    const bookings = await deleteCollection("scheduler/bookings");
+    const bookings = await deleteCollection("scheduler/settings/bookings");
     log(`Deleted ${bookings} booking(s)…`);
 
-    const services = await deleteCollection("scheduler/services");
+    const services = await deleteCollection("scheduler/settings/services");
     log(`Deleted ${bookings} booking(s) and ${services} service(s)…`);
 
     await setDoc(doc(db,"scheduler","settings"), {
@@ -122,7 +122,7 @@ async function resetScheduler(){
     });
 
     for(const service of defaultServices){
-      await addDoc(collection(db,"scheduler/services"), service);
+      await addDoc(collection(db,"scheduler","settings","services"), service);
     }
 
     log(

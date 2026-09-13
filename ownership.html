@@ -104,12 +104,12 @@ $("reset").onclick=async()=>{
  if(!u){msg("resetStatus","Sign in as the owner first.");return}
  if(!confirm("Reset scheduler data and recreate defaults?"))return;
  try{
-   const bs=await getDocs(collection(db,"scheduler/bookings"));
+   const bs=await getDocs(collection(db,"scheduler","settings","bookings"));
    for(const d of bs.docs)await deleteDoc(d.ref);
-   const ss=await getDocs(collection(db,"scheduler/services"));
+   const ss=await getDocs(collection(db,"scheduler","settings","services"));
    for(const d of ss.docs)await deleteDoc(d.ref);
    await setDoc(doc(db,"scheduler","settings"),{hours,ownerUid:u.uid,updatedAt:serverTimestamp()});
-   for(const s of services)await addDoc(collection(db,"scheduler/services"),s);
+   for(const s of services)await addDoc(collection(db,"scheduler","settings","services"),s);
    msg("resetStatus","Reset complete. Defaults restored and ownership retained.");
  }catch(e){msg("resetStatus",e.message)}
 };

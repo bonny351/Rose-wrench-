@@ -26,8 +26,8 @@ The site uses the Firebase project/config supplied in the original Firebase page
 Firestore collections used by the scheduler:
 
 - `scheduler/settings`
-- `scheduler/services`
-- `scheduler/bookings`
+- `scheduler/settings/services`
+- `scheduler/settings/bookings`
 
 The reset page does not touch `products_bracelets`.
 
@@ -49,3 +49,18 @@ The scheduler also needs a transaction/locking strategy for guaranteed double-bo
 - Scheduler reset without deleting `products_bracelets`
 
 For production, configure Firestore Security Rules so only the authenticated owner UID can write settings/services/bookings administration data. Do not rely on hiding the page URL for security.
+
+
+## Firestore structure fix
+
+The earlier version used paths such as `scheduler/bookings`, which Firestore rejects because a collection path must have an odd number of path segments.
+
+This package uses the valid hierarchy:
+
+- `scheduler/settings` — document
+- `scheduler/settings/services` — collection
+- `scheduler/settings/bookings` — collection
+
+The screenshot error (`Invalid collection reference ... scheduler/bookings has 2 segments`) is fixed in this package.
+
+`firestore.rules` is included as a starting point. Review it before production; in particular, public booking reads expose booking records to the browser because the current static-site availability system needs to read existing appointments.
