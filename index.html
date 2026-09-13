@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Rose Wrench Automotive — Book Appointment</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#090909;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1100px;margin:auto;padding:22px}.brand{font-weight:900;font-size:24px}.brand span{color:#f00}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:24px}
+button{cursor:pointer;border:0;border-radius:10px;padding:12px 16px;font-weight:800;background:#f00;color:#fff}
+button.secondary{background:#292929;border:1px solid #444}.card{background:#151515;border:1px solid #2b2b2b;border-radius:16px;padding:20px;margin:15px 0}
+h1{font-size:clamp(35px,6vw,62px);line-height:1;margin:15px 0}h2{margin-top:0;color:#fff}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}.three{grid-template-columns:repeat(3,1fr)}
+label{display:block;font-weight:800;font-size:13px;margin:8px 0 6px;color:#ddd}
+input,select,textarea{width:100%;background:#0d0d0d;color:#fff;border:1px solid #3b3b3b;border-radius:10px;padding:12px;font:inherit}textarea{min-height:90px}
+.muted{color:#aaa}.small{font-size:12px;color:#aaa;line-height:1.4}.msg{padding:12px;border-radius:10px;margin-top:12px}.good{background:#0e2514;color:#8cff9c}.bad{background:#2b0d0d;color:#ff9b9b}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}.slot{background:#242424;border:1px solid #3a3a3a}.slot:hover,.slot.selected{background:#450909;border-color:#f00}
+.dayrow{display:grid;grid-template-columns:1.1fr 1fr 1fr auto;gap:10px;align-items:end;padding:10px 0;border-bottom:1px solid #292929}
+.service{display:grid;grid-template-columns:1fr 180px auto;gap:10px;align-items:end;padding:10px 0;border-bottom:1px solid #292929}
+.booking{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;padding:12px 0;border-bottom:1px solid #292929}
+.hidden{display:none!important}.pill{display:inline-block;background:#242424;border:1px solid #333;border-radius:999px;padding:6px 10px;font-size:12px;margin:3px}
+@media(max-width:700px){.grid,.three{grid-template-columns:1fr}.slots{grid-template-columns:repeat(2,1fr)}.dayrow,.service,.booking{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">ROSE <span>WRENCH</span> AUTOMOTIVE</div>
+    <div><button id="ownerBtn" class="secondary">Owner Calendar</button></div>
+  </div>
+
+  <section id="customer">
+    <div class="card">
+      <p class="muted">APPOINTMENTS</p>
+      <h1>Book your service.</h1>
+      <p class="muted">Choose the job first. We'll only show appointment times where the entire job fits inside the shop's open hours and around existing appointments.</p>
+    </div>
+
+    <div class="card">
+      <h2>Choose your service</h2>
+      <div class="grid">
+        <div><label>Service</label><select id="service"></select></div>
+        <div><label>Date</label><input id="date" type="date"></div>
+      </div>
+      <div id="availability"></div>
+    </div>
+
+    <div class="card">
+      <h2>Your information</h2>
+      <form id="bookingForm">
+        <div class="grid">
+          <div><label>Name</label><input id="name" required></div>
+          <div><label>Phone</label><input id="phone" required type="tel"></div>
+          <div><label>Email</label><input id="email" type="email"></div>
+          <div><label>Vehicle</label><input id="vehicle" required placeholder="Year / make / model"></div>
+        </div>
+        <label>Notes</label><textarea id="notes" placeholder="Tell us anything about the vehicle or repair."></textarea>
+        <button type="submit" style="margin-top:14px">Book Appointment</button>
+        <div id="customerMsg"></div>
+      </form>
+    </div>
+  </section>
+
+  <section id="owner" class="hidden">
+    <div class="card">
+      <h2>Owner Calendar</h2>
+      <p class="muted">These settings are stored in your Firebase Firestore database, so they can be shared across devices.</p>
+      <button id="backBtn" class="secondary">Back to Customer Booking</button>
+    </div>
+
+    <div class="card">
+      <h2>Shop hours</h2>
+      <div id="hours"></div>
+      <button id="saveHours" style="margin-top:14px">Save Shop Hours</button>
+      <div id="hoursMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Jobs & duration</h2>
+      <div id="services"></div>
+      <button id="addService" style="margin-top:14px">Add Job</button>
+      <div id="servicesMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Upcoming appointments</h2>
+      <div id="bookings"></div>
+    </div>
+  </section>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, collection, getDocs,
+  query, where, orderBy, addDoc, deleteDoc, Timestamp
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyCiZuaANb1lrgdn-aARGJ_TRhgzPPUug58",
+ authDomain:"bracelets-and-color.firebaseapp.com",
+ projectId:"bracelets-and-color",
+ storageBucket:"bracelets-and-color.appspot.com",
+ messagingSenderId:"382292570673",
+ appId:"1:382292570673:web:1c966e2e7e8fc2efa31b10"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+/*
+ FIRESTORE STRUCTURE USED BY THIS PAGE
+
+ scheduler/settings
+   hours: {
+     Sunday:{open:"",close:""},
+     Monday:{open:"08:00",close:"17:00"}, ...
+   }
+
+ scheduler/services/{serviceId}
+   name: "Oil Change"
+   duration: 45
+   active: true
+
+ scheduler/bookings/{autoId}
+   date: "2026-09-20"
+   start: 540
+   end: 585
+   serviceId: "..."
+   serviceName: "Oil Change"
+   customerName, phone, email, vehicle, notes
+   createdAt: server timestamp
+
+ The page creates sensible defaults if scheduler/settings and services don't exist.
+*/
+
+const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const DEFAULT_HOURS={
+ Sunday:{open:"",close:""}, Monday:{open:"08:00",close:"17:00"},
+ Tuesday:{open:"08:00",close:"17:00"}, Wednesday:{open:"08:00",close:"17:00"},
+ Thursday:{open:"08:00",close:"17:00"}, Friday:{open:"08:00",close:"17:00"},
+ Saturday:{open:"09:00",close:"14:00"}
+};
+const DEFAULT_SERVICES=[
+ {name:"Oil Change",duration:45,active:true},
+ {name:"Brake Service",duration:120,active:true},
+ {name:"Diagnostic",duration:60,active:true},
+ {name:"General Repair",duration:180,active:true}
+];
+
+const $=id=>document.getElementById(id);
+let hours=structuredClone(DEFAULT_HOURS), services=[], selected=null, currentBookings=[];
+
+function today(){
+ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+$("date").min=today();$("date").value=today();
+
+function minutes(t){const [h,m]=t.split(":").map(Number);return h*60+m}
+function timeText(n){let h=Math.floor(n/60),m=n%60,a=h>=12?"PM":"AM";h=h%12||12;return `${h}:${String(m).padStart(2,"0")} ${a}`}
+function durationText(n){return n<60?`${n} min`:`${Math.floor(n/60)}${n%60?` hr ${n%60} min`:" hr"}`}
+function msg(el,text,good=true){el.className="msg "+(good?"good":"bad");el.textContent=text}
+
+async function loadSettings(){
+ const snap=await getDoc(doc(db,"scheduler","settings"));
+ if(snap.exists() && snap.data().hours) hours=snap.data().hours;
+ else await setDoc(doc(db,"scheduler","settings"),{hours});
+}
+async function loadServices(){
+ const snap=await getDocs(collection(db,"scheduler","services"));
+ if(snap.empty){
+   for(const s of DEFAULT_SERVICES) await addDoc(collection(db,"scheduler","services"),s);
+   return loadServices();
+ }
+ services=snap.docs.map(d=>({id:d.id,...d.data()})).filter(s=>s.active!==false);
+ renderServiceSelect();
+}
+
+function renderServiceSelect(){
+ $("service").innerHTML=services.length?services.map(s=>`<option value="${s.id}">${escapeHtml(s.name)} — ${durationText(s.duration)}</option>`).join(""):"<option>No services available</option>";
+ renderAvailability();
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+
+async function getBookings(date){
+ const snap=await getDocs(query(collection(db,"scheduler","bookings"),where("date","==",date)));
+ return snap.docs.map(d=>({id:d.id,...d.data()}));
+}
+
+async function renderAvailability(){
+ const date=$("date").value, service=services.find(s=>s.id===$("service").value);
+ if(!date||!service){$("availability").innerHTML="";return}
+ const dow=DAYS[new Date(date+"T12:00:00").getDay()], h=hours[dow]||{};
+ if(!h.open||!h.close){$("availability").innerHTML=`<div class="msg bad">We're closed on ${dow}. Please choose another day.</div>`;selected=null;return}
+ currentBookings=await getBookings(date);
+ const open=minutes(h.open), close=minutes(h.close), slots=[];
+ for(let t=open;t+Number(service.duration)<=close;t+=30){
+   const conflict=currentBookings.some(b=>t<b.end && t+Number(service.duration)>b.start);
+   if(!conflict)slots.push(t);
+ }
+ selected=null;
+ $("availability").innerHTML=`<h3 style="margin-top:22px">Available times</h3><div class="small">${durationText(service.duration)} required for this job.</div>`+
+ (slots.length?`<div class="slots">${slots.map(t=>`<button class="slot" data-time="${t}" type="button">${timeText(t)}</button>`).join("")}</div>`:
+ `<div class="msg bad">No appointment times fit this job on this date.</div>`);
+}
+
+$("availability").addEventListener("click",e=>{
+ const b=e.target.closest("[data-time]");if(!b)return;
+ selected=Number(b.dataset.time);
+ document.querySelectorAll(".slot").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");
+});
+
+$("service").addEventListener("change",renderAvailability);
+$("date").addEventListener("change",renderAvailability);
+
+$("bookingForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ if(selected===null){msg($("customerMsg"),"Choose an available time first.",false);return}
+ const service=services.find(s=>s.id===$("service").value), date=$("date").value, end=selected+Number(service.duration);
+ // Transaction-level locking is the production-safe way to guarantee no double booking.
+ // This UI performs a final live check immediately before writing.
+ const latest=await getBookings(date);
+ if(latest.some(b=>selected<b.end && end>b.start)){
+   msg($("customerMsg"),"That time was just booked. Please choose another time.",false);
+   return renderAvailability();
+ }
+ await addDoc(collection(db,"scheduler","bookings"),{
+   date,start:selected,end,serviceId:service.id,serviceName:service.name,
+   customerName:$("name").value.trim(),phone:$("phone").value.trim(),
+   email:$("email").value.trim(),vehicle:$("vehicle").value.trim(),
+   notes:$("notes").value.trim(),createdAt:Timestamp.now()
+ });
+ msg($("customerMsg"),`Appointment booked for ${date} at ${timeText(selected)}.`,true);
+ e.target.reset();$("date").value=date;selected=null;await renderAvailability();
+});
+
+function renderHoursAdmin(){
+ $("hours").innerHTML=DAYS.map(d=>`<div class="dayrow"><strong>${d}</strong><input type="time" data-d="${d}" data-k="open" value="${hours[d]?.open||""}"><input type="time" data-d="${d}" data-k="close" value="${hours[d]?.close||""}"><button class="secondary" data-close="${d}" type="button">Closed</button></div>`).join("");
+ $("hours").querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>{
+   const d=b.dataset.close;hours[d]={open:"",close:""};renderHoursAdmin();
+ });
+}
+$("saveHours").onclick=async()=>{
+ document.querySelectorAll("#hours input").forEach(i=>{hours[i.dataset.d][i.dataset.k]=i.value});
+ await setDoc(doc(db,"scheduler","settings"),{hours},{merge:true});
+ await renderAvailability();msg($("hoursMsg"),"Shop hours saved to Firebase.",true);
+};
+
+async function renderServicesAdmin(){
+ const snap=await getDocs(collection(db,"scheduler","services"));
+ const all=snap.docs.map(d=>({id:d.id,...d.data()}));
+ $("services").innerHTML=all.map(s=>`<div class="service">
+ <div><label>Job</label><input data-id="${s.id}" data-field="name" value="${escapeHtml(s.name||"")}"></div>
+ <div><label>Minutes</label><input data-id="${s.id}" data-field="duration" type="number" min="5" step="5" value="${Number(s.duration)||60}"></div>
+ <button class="secondary" data-delete="${s.id}" type="button">Delete</button></div>`).join("");
+ $("services").querySelectorAll("[data-delete]").forEach(b=>b.onclick=async()=>{await deleteDoc(doc(db,"scheduler","services",b.dataset.delete));await loadServices();await renderServicesAdmin();});
+ $("services").querySelectorAll("[data-field]").forEach(i=>i.addEventListener("change",async()=>{
+   const id=i.dataset.id, fields={};
+   document.querySelectorAll(`[data-id="${id}"]`).forEach(x=>fields[x.dataset.field]=x.dataset.field==="duration"?Number(x.value):x.value.trim());
+   fields.active=true;await setDoc(doc(db,"scheduler","services",id),fields,{merge:true});
+   await loadServices();msg($("servicesMsg"),"Job saved.",true);
+ }));
+}
+$("addService").onclick=async()=>{
+ const r=await addDoc(collection(db,"scheduler","services"),{name:"New Job",duration:60,active:true});
+ await loadServices();await renderServicesAdmin();
+};
+
+async function renderBookingsAdmin(){
+ const snap=await getDocs(query(collection(db,"scheduler","bookings"),orderBy("date")));
+ const all=snap.docs.map(d=>({id:d.id,...d.data()}));
+ if(!all.length){$("bookings").innerHTML='<p class="muted">No appointments yet.</p>';return}
+ $("bookings").innerHTML=all.map(b=>`<div class="booking">
+ <div><strong>${escapeHtml(b.customerName||"")}</strong><div class="small">${escapeHtml(b.phone||"")} • ${escapeHtml(b.vehicle||"")}</div></div>
+ <div><strong>${b.date}</strong><div class="small">${timeText(b.start)}–${timeText(b.end)}</div></div>
+ <div>${escapeHtml(b.serviceName||"")}<div class="small">${escapeHtml(b.notes||"")}</div></div>
+ <button class="secondary" data-cancel="${b.id}" type="button">Cancel</button>
+ </div>`).join("");
+ $("bookings").querySelectorAll("[data-cancel]").forEach(b=>b.onclick=async()=>{
+   if(confirm("Cancel this appointment?")){await deleteDoc(doc(db,"scheduler","bookings",b.dataset.cancel));renderBookingsAdmin();}
+ });
+}
+
+$("ownerBtn").onclick=async()=>{
+ $("customer").classList.add("hidden");$("owner").classList.remove("hidden");
+ renderHoursAdmin();await renderServicesAdmin();await renderBookingsAdmin();
+};
+$("backBtn").onclick=()=>{$("owner").classList.add("hidden");$("customer").classList.remove("hidden");renderAvailability()};
+
+try{
+ await loadSettings();await loadServices();renderHoursAdmin();renderAvailability();
+}catch(err){
+ console.error(err);
+ document.body.insertAdjacentHTML("afterbegin",`<div class="msg bad" style="margin:15px">Firebase error: ${escapeHtml(err.message)}</div>`);
+}
+</script>
+</body>
+</html>
