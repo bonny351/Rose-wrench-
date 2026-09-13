@@ -1,139 +1,79 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Rose Wrench Automotive — Book Appointment</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rose Wrench Automotive | Book an Appointment</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#090909;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-.wrap{max-width:1100px;margin:auto;padding:22px}.brand{font-weight:900;font-size:24px}.brand span{color:#f00}
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:24px}
-button{cursor:pointer;border:0;border-radius:10px;padding:12px 16px;font-weight:800;background:#f00;color:#fff}
-button.secondary{background:#292929;border:1px solid #444}.card{background:#151515;border:1px solid #2b2b2b;border-radius:16px;padding:20px;margin:15px 0}
-h1{font-size:clamp(35px,6vw,62px);line-height:1;margin:15px 0}h2{margin-top:0;color:#fff}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}.three{grid-template-columns:repeat(3,1fr)}
-label{display:block;font-weight:800;font-size:13px;margin:8px 0 6px;color:#ddd}
-input,select,textarea{width:100%;background:#0d0d0d;color:#fff;border:1px solid #3b3b3b;border-radius:10px;padding:12px;font:inherit}textarea{min-height:90px}
-.muted{color:#aaa}.small{font-size:12px;color:#aaa;line-height:1.4}.msg{padding:12px;border-radius:10px;margin-top:12px}.good{background:#0e2514;color:#8cff9c}.bad{background:#2b0d0d;color:#ff9b9b}
-.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}.slot{background:#242424;border:1px solid #3a3a3a}.slot:hover,.slot.selected{background:#450909;border-color:#f00}
-.dayrow{display:grid;grid-template-columns:1.1fr 1fr 1fr auto;gap:10px;align-items:end;padding:10px 0;border-bottom:1px solid #292929}
-.service{display:grid;grid-template-columns:1fr 180px auto;gap:10px;align-items:end;padding:10px 0;border-bottom:1px solid #292929}
-.booking{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:10px;padding:12px 0;border-bottom:1px solid #292929}.baygrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.baycard{border:1px solid #333;border-radius:10px;padding:12px;background:#101010}.baydays{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:8px}.bayday{font-size:11px;padding:7px 3px;text-align:center;background:#252525;border-radius:7px;cursor:pointer}.bayday.on{background:#50090c;border:1px solid #f00}@media(max-width:700px){.baygrid{grid-template-columns:1fr}.baydays{grid-template-columns:repeat(4,1fr)}}
-.hidden{display:none!important}.pill{display:inline-block;background:#242424;border:1px solid #333;border-radius:999px;padding:6px 10px;font-size:12px;margin:3px}
-@media(max-width:700px){.grid,.three{grid-template-columns:1fr}.slots{grid-template-columns:repeat(2,1fr)}.dayrow,.service,.booking{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}}
+*{box-sizing:border-box}body{margin:0;background:#090909;color:#f7f7f7;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1050px;margin:auto;padding:22px 16px 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:22px}
+.brand{font-weight:950;font-size:24px;letter-spacing:.4px}.brand span{color:#ef1b24}
+button{cursor:pointer;border:0;border-radius:10px;padding:12px 16px;font-weight:850;background:#ed1b24;color:white}
+.secondary{background:#292929;border:1px solid #444}.card{background:#151515;border:1px solid #2d2d2d;border-radius:16px;padding:20px;margin:15px 0}
+.hero{padding:30px 20px}.eyebrow{color:#ed1b24;font-weight:900;letter-spacing:2px}.hero h1{font-size:clamp(38px,7vw,68px);line-height:.98;margin:12px 0}.muted{color:#aaa}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+label{display:block;font-size:13px;font-weight:800;color:#ddd;margin:8px 0 6px}input,select,textarea{width:100%;padding:12px;background:#0c0c0c;color:#fff;border:1px solid #3c3c3c;border-radius:10px;font:inherit}textarea{min-height:90px;resize:vertical}
+.slots{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:14px}.slot{background:#252525;border:1px solid #3b3b3b}.slot.selected{background:#52090c;border-color:#f21d26}.msg{padding:12px;border-radius:10px;margin-top:12px}.good{background:#0d2614;color:#9affaa}.bad{background:#330c0c;color:#ffaaaa}.small{font-size:12px;color:#aaa}
+.hidden{display:none!important}.info{display:flex;gap:8px;flex-wrap:wrap}.pill{background:#242424;border:1px solid #383838;border-radius:999px;padding:7px 11px;font-size:12px}
+@media(max-width:700px){.top{align-items:flex-start}.grid{grid-template-columns:1fr}.slots{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:44px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top">
-    <div class="brand">ROSE <span>WRENCH</span> AUTOMOTIVE</div>
-    <div><button id="ownerBtn" class="secondary">Owner Sign In</button></div>
-  </div>
+<header class="top">
+  <div class="brand">ROSE <span>WRENCH</span> AUTOMOTIVE</div>
+  <div><button id="employeeBtn" class="secondary" onclick="location.href='employee.html'">Employee</button> <button id="ownerBtn" class="secondary">Owner Sign In</button></div>
+</header>
 
-  <section id="ownerLogin" class="hidden">
-    <div class="card">
-      <h2>Owner Sign In</h2>
-      <p class="muted">Sign in with your Firebase owner account to open the admin dashboard.</p>
-      <form id="ownerLoginForm">
-        <label>Email</label>
-        <input id="ownerEmail" type="email" required autocomplete="username">
-        <label>Password</label>
-        <input id="ownerPassword" type="password" required autocomplete="current-password">
-        <button type="submit">SIGN IN TO ADMIN</button>
-        <button id="ownerLoginBack" type="button" class="secondary">Back to Booking</button>
-      </form>
-      <div id="ownerLoginMsg"></div>
-    </div>
-  </section>
-
-  <section id="ownerLogin" class="hidden">
- <div class="card">
+<section id="ownerLogin" class="card hidden">
   <h2>Owner Sign In</h2>
-  <p class="muted">Sign in with the Firebase owner account to open the admin dashboard.</p>
+  <p class="muted">Sign in with the Firebase owner account. A successful sign-in opens the admin dashboard.</p>
   <form id="ownerLoginForm">
-   <label>Email</label><input id="ownerEmail" type="email" required autocomplete="username">
-   <label>Password</label><input id="ownerPassword" type="password" required autocomplete="current-password">
-   <button type="submit">SIGN IN TO ADMIN</button>
-   <button type="button" id="ownerBack" class="secondary">Back to Booking</button>
+    <label>Email</label><input id="ownerEmail" type="email" autocomplete="username" required>
+    <label>Password</label><input id="ownerPassword" type="password" autocomplete="current-password" required>
+    <button type="submit">SIGN IN TO ADMIN</button>
+    <button type="button" id="ownerBack" class="secondary">Back to Booking</button>
   </form>
   <div id="ownerLoginMsg"></div>
- </div>
 </section>
-<section id="customer">
-    <div class="card">
-      <p class="muted">APPOINTMENTS</p>
-      <h1>Book your service.</h1>
-      <p class="muted">Choose the job first. We'll only show appointment times where the entire job fits inside the shop's open hours and around existing appointments.</p>
-    </div>
 
-    <div class="card">
-      <h2>Choose your service</h2>
-      <div class="grid">
-        <div><label>Service</label><select id="service"></select></div>
-        <div><label>Date</label><input id="date" type="date"></div>
-      </div>
-      <div id="availability"></div>
-    </div>
+<main id="customer">
+<section class="card hero">
+  <div class="eyebrow">APPOINTMENTS</div>
+  <h1>Book your service.</h1>
+  <p class="muted">Pick a service and date. We'll only show times where the whole job fits and a service bay is available.</p>
+  <div class="info"><span class="pill">Multiple bays</span><span class="pill">Automatic bay assignment</span><span class="pill">Full-job availability</span></div>
+</section>
 
-    <div class="card">
-      <h2>Your information</h2>
-      <form id="bookingForm">
-        <div class="grid">
-          <div><label>Name</label><input id="name" required></div>
-          <div><label>Phone</label><input id="phone" required type="tel"></div>
-          <div><label>Email</label><input id="email" type="email"></div>
-          <div><label>Vehicle</label><input id="vehicle" required placeholder="Year / make / model"></div>
-        </div>
-        <label>Notes</label><textarea id="notes" placeholder="Tell us anything about the vehicle or repair."></textarea>
-        <button type="submit" style="margin-top:14px">Book Appointment</button>
-        <div id="customerMsg"></div>
-      </form>
-    </div>
-  </section>
+<section class="card">
+  <h2>Choose your service</h2>
+  <div class="grid">
+    <div><label>Service</label><select id="service"><option>Loading…</option></select></div>
+    <div><label>Date</label><input id="date" type="date"></div>
+  </div>
+  <div id="availability"></div>
+</section>
 
-  <section id="owner" class="hidden">
-    <div class="card">
-      <h2>Owner Calendar</h2>
-      <p class="muted">These settings are stored in your Firebase Firestore database, so they can be shared across devices.</p>
-      <button id="backBtn" class="secondary">Back to Customer Booking</button>
+<section class="card">
+  <h2>Your information</h2>
+  <form id="bookingForm">
+    <div class="grid">
+      <div><label>Name</label><input id="name" required></div>
+      <div><label>Phone</label><input id="phone" type="tel" required></div>
+      <div><label>Email</label><input id="email" type="email"></div>
+      <div><label>Vehicle</label><input id="vehicle" required placeholder="Year / make / model"></div>
     </div>
-
-    <div class="card">
-      <h2>Shop hours</h2>
-      <div id="hours"></div>
-      <button id="saveHours" style="margin-top:14px">Save Shop Hours</button>
-      <div id="hoursMsg"></div>
-    </div>
-
-    <div class="card">
-      <h2>Jobs & duration</h2>
-      <div id="services"></div>
-      <button id="addService" style="margin-top:14px">Add Job</button>
-      <div id="servicesMsg"></div>
-    </div>
-    <div class="card">
-      <h2>Open service bays</h2>
-      <p class="muted">Turn bays on or off for each day. Customers do not choose a bay; the system automatically assigns an available open bay. If 3 bays are open, up to 3 compatible jobs can run at the same time.</p>
-      <div id="bays"></div>
-      <button id="addBay" style="margin-top:14px">Add Bay</button>
-      <div id="baysMsg"></div>
-    </div>
-
-    <div class="card">
-      <h2>Upcoming appointments</h2>
-      <div id="bookings"></div>
-    </div>
-  </section>
+    <label>Notes</label><textarea id="notes" placeholder="Tell us anything about the vehicle or repair."></textarea>
+    <button type="submit" style="margin-top:14px">BOOK APPOINTMENT</button>
+    <div id="customerMsg"></div>
+  </form>
+</section>
+</main>
 </div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import {getAuth,signInWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import {getAuth,signInWithEmailAndPassword,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import {
-  getFirestore, doc, getDoc, setDoc, collection, getDocs,
-  query, where, orderBy, addDoc, deleteDoc, Timestamp
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import {getFirestore,doc,getDoc,setDoc,collection,getDocs,query,where,addDoc,Timestamp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
 const firebaseConfig={
  apiKey:"AIzaSyCiZuaANb1lrgdn-aARGJ_TRhgzPPUug58",
@@ -143,94 +83,38 @@ const firebaseConfig={
  messagingSenderId:"382292570673",
  appId:"1:382292570673:web:1c966e2e7e8fc2efa31b10"
 };
-
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getFirestore(app);
-
-/*
- FIRESTORE STRUCTURE USED BY THIS PAGE
-
- scheduler/settings
-   hours: {
-     Sunday:{open:"",close:""},
-     Monday:{open:"08:00",close:"17:00"}, ...
-   }
-
- scheduler/settings/services/{serviceId}
-   name: "Oil Change"
-   duration: 45
-   active: true
-
- scheduler/settings/bookings/{autoId}
-   date: "2026-09-20"
-   start: 540
-   end: 585
-   bayId: "bay1"
-   bayName: "Bay 1"
-   serviceId: "..."
-   serviceName: "Oil Change"
-   customerName, phone, email, vehicle, notes
-   createdAt: server timestamp
-
- scheduler/settings document also stores:
-   bays: {
-     bay1:{name:"Bay 1", days:{Sunday:false,Monday:true,...}},
-     bay2:{...}
-   }
-
- The page creates sensible defaults if scheduler/settings and services don't exist.
-*/
-
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-const DEFAULT_HOURS={
- Sunday:{open:"",close:""}, Monday:{open:"08:00",close:"17:00"},
- Tuesday:{open:"08:00",close:"17:00"}, Wednesday:{open:"08:00",close:"17:00"},
- Thursday:{open:"08:00",close:"17:00"}, Friday:{open:"08:00",close:"17:00"},
- Saturday:{open:"09:00",close:"14:00"}
-};
-const DEFAULT_SERVICES=[
- {name:"Oil Change",duration:45,active:true},
- {name:"Brake Service",duration:120,active:true},
- {name:"Diagnostic",duration:60,active:true},
- {name:"General Repair",duration:180,active:true}
-];
-const DEFAULT_BAYS={
- bay1:{name:"Bay 1",active:true,days:{Sunday:{open:"",close:""},Monday:{open:"08:00",close:"17:00"},Tuesday:{open:"08:00",close:"17:00"},Wednesday:{open:"08:00",close:"17:00"},Thursday:{open:"08:00",close:"17:00"},Friday:{open:"08:00",close:"17:00"},Saturday:{open:"09:00",close:"14:00"}}},
- bay2:{name:"Bay 2",active:true,days:{Sunday:{open:"",close:""},Monday:{open:"08:00",close:"17:00"},Tuesday:{open:"08:00",close:"17:00"},Wednesday:{open:"08:00",close:"17:00"},Thursday:{open:"08:00",close:"17:00"},Friday:{open:"08:00",close:"17:00"},Saturday:{open:"09:00",close:"14:00"}}},
- bay3:{name:"Bay 3",active:true,days:{Sunday:{open:"",close:""},Monday:{open:"08:00",close:"17:00"},Tuesday:{open:"08:00",close:"17:00"},Wednesday:{open:"08:00",close:"17:00"},Thursday:{open:"08:00",close:"17:00"},Friday:{open:"08:00",close:"17:00"},Saturday:{open:"09:00",close:"14:00"}}},
- bay4:{name:"Bay 4",active:true,days:{Sunday:{open:"",close:""},Monday:{open:"08:00",close:"17:00"},Tuesday:{open:"08:00",close:"17:00"},Wednesday:{open:"08:00",close:"17:00"},Thursday:{open:"08:00",close:"17:00"},Friday:{open:"08:00",close:"17:00"},Saturday:{open:"09:00",close:"14:00"}}}
-};
+const DEFAULT_HOURS={Sunday:{open:"",close:""},Monday:{open:"08:00",close:"17:00"},Tuesday:{open:"08:00",close:"17:00"},Wednesday:{open:"08:00",close:"17:00"},Thursday:{open:"08:00",close:"17:00"},Friday:{open:"08:00",close:"17:00"},Saturday:{open:"09:00",close:"14:00"}};
+const DEFAULT_BAYS=Object.fromEntries([1,2,3,4].map(i=>["bay"+i,{name:"Bay "+i,active:true,days:Object.fromEntries(DAYS.map(d=>[d,{...DEFAULT_HOURS[d]}]))}]));
+const DEFAULT_SERVICES=[{name:"Oil Change",duration:45,active:true},{name:"Brake Service",duration:120,active:true},{name:"Diagnostic",duration:60,active:true},{name:"General Repair",duration:180,active:true}];
+let hours=structuredClone(DEFAULT_HOURS),bays=structuredClone(DEFAULT_BAYS),services=[],selected=null,selectedBay=null;
 
 const $=id=>document.getElementById(id);
-let hours=structuredClone(DEFAULT_HOURS), bays=structuredClone(DEFAULT_BAYS), services=[], selected=null, selectedBay=null, currentBookings=[];
-
-function today(){
- const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
-$("date").min=today();$("date").value=today();
-
-function minutes(t){const [h,m]=t.split(":").map(Number);return h*60+m}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function mins(t){const p=t.split(":").map(Number);return p[0]*60+p[1]}
 function timeText(n){let h=Math.floor(n/60),m=n%60,a=h>=12?"PM":"AM";h=h%12||12;return `${h}:${String(m).padStart(2,"0")} ${a}`}
 function durationText(n){return n<60?`${n} min`:`${Math.floor(n/60)}${n%60?` hr ${n%60} min`:" hr"}`}
-function msg(el,text,good=true){el.className="msg "+(good?"good":"bad");el.textContent=text}
+function showMsg(el,text,good=false){el.className="msg "+(good?"good":"bad");el.textContent=text}
+
+$("date").min=today();$("date").value=today();
 
 async function loadSettings(){
  const snap=await getDoc(doc(db,"scheduler","settings"));
- if(snap.exists()){
-   if(snap.data().hours) hours=snap.data().hours;
-   if(snap.data().bays){
-     bays=snap.data().bays;
-     for(const [id,b] of Object.entries(bays)){
-       b.days=b.days||{};
-       for(const d of DAYS){
-         if(typeof b.days[d]==="boolean") b.days[d]=b.days[d]?{open:hours[d]?.open||"08:00",close:hours[d]?.close||"17:00"}:{open:"",close:""};
-         else if(!b.days[d]) b.days[d]={open:"",close:""};
-       }
-     }
-   } else await setDoc(doc(db,"scheduler","settings"),{bays:DEFAULT_BAYS},{merge:true});
- }else{
+ if(!snap.exists()){
    await setDoc(doc(db,"scheduler","settings"),{hours,bays});
+   return;
+ }
+ const data=snap.data();
+ hours=data.hours||hours;
+ bays=data.bays||bays;
+ for(const b of Object.values(bays)){
+   b.days=b.days||{};
+   for(const d of DAYS){
+     if(typeof b.days[d]==="boolean") b.days[d]=b.days[d]?{...hours[d]}:{open:"",close:""};
+     if(!b.days[d]) b.days[d]={open:"",close:""};
+   }
  }
 }
 async function loadServices(){
@@ -240,170 +124,74 @@ async function loadServices(){
    return loadServices();
  }
  services=snap.docs.map(d=>({id:d.id,...d.data()})).filter(s=>s.active!==false);
- renderServiceSelect();
+ $("service").innerHTML=services.length?services.map(s=>`<option value="${esc(s.id)}">${esc(s.name)} — ${durationText(Number(s.duration))}</option>`).join(""):"<option>No services available</option>";
+ await renderAvailability();
 }
-
-function renderServiceSelect(){
- $("service").innerHTML=services.length?services.map(s=>`<option value="${s.id}">${escapeHtml(s.name)} — ${durationText(s.duration)}</option>`).join(""):"<option>No services available</option>";
- renderAvailability();
-}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-
 async function getBookings(date){
  const snap=await getDocs(query(collection(db,"scheduler","settings","bookings"),where("date","==",date)));
  return snap.docs.map(d=>({id:d.id,...d.data()}));
 }
-
 async function renderAvailability(){
- const date=$("date").value, service=services.find(s=>s.id===$("service").value);
+ const date=$("date").value,service=services.find(s=>s.id===$("service").value);
  if(!date||!service){$("availability").innerHTML="";return}
- const dow=DAYS[new Date(date+"T12:00:00").getDay()];
- currentBookings=await getBookings(date);
- const openBays=Object.entries(bays).filter(([id,b])=>{
-   if(b.active===false)return false;
-   const x=b.days?.[dow];
-   return x && x.open && x.close;
- });
- if(!openBays.length){$("availability").innerHTML=`<div class="msg bad">No bays are open on ${dow}.</div>`;selected=null;selectedBay=null;return}
+ const dow=DAYS[new Date(date+"T12:00:00").getDay()],duration=Number(service.duration);
+ const bookings=await getBookings(date);
+ const openBays=Object.entries(bays).filter(([id,b])=>b.active!==false&&b.days?.[dow]?.open&&b.days?.[dow]?.close);
+ if(!openBays.length){$("availability").innerHTML=`<div class="msg bad">No service bays are open on ${dow}.</div>`;selected=selectedBay=null;return}
  const slots=[];
  for(let t=0;t<1440;t+=30){
-   const free=openBays.find(([id,bb])=>{
-     const x=bb.days[dow], end=t+Number(service.duration);
-     return t>=minutes(x.open)&&end<=minutes(x.close)&&!currentBookings.some(q=>q.bayId===id&&t<q.end&&end>q.start);
+   const bay=openBays.find(([id,b])=>{
+     const schedule=b.days[dow],end=t+duration;
+     return t>=mins(schedule.open)&&end<=mins(schedule.close)&&!bookings.some(x=>x.bayId===id&&t<x.end&&end>x.start);
    });
-   if(free)slots.push({time:t,bayId:free[0],bayName:free[1].name});
+   if(bay)slots.push({time:t,bayId:bay[0],bayName:bay[1].name});
  }
- selected=null;selectedBay=null;
- $("availability").innerHTML=`<h3 style="margin-top:22px">Available times</h3><div class="small">${durationText(service.duration)} required • ${openBays.length} bay${openBays.length===1?"":"s"} open ${dow}.</div>`+
- (slots.length?`<div class="slots">${slots.map(x=>`<button class="slot" data-time="${x.time}" data-bay="${escapeHtml(x.bayId)}" type="button">${timeText(x.time)}</button>`).join("")}</div>`:`<div class="msg bad">No appointment times fit this job on this date.</div>`);
+ selected=selectedBay=null;
+ $("availability").innerHTML=`<h3>Available times</h3><div class="small">${durationText(duration)} required • ${openBays.length} bay${openBays.length===1?"":"s"} open.</div>`+
+ (slots.length?`<div class="slots">${slots.map(x=>`<button class="slot" type="button" data-time="${x.time}" data-bay="${esc(x.bayId)}">${timeText(x.time)}</button>`).join("")}</div>`:`<div class="msg bad">No times fit this job on this date.</div>`);
 }
-
 $("availability").addEventListener("click",e=>{
  const b=e.target.closest("[data-time]");if(!b)return;
  selected=Number(b.dataset.time);selectedBay=b.dataset.bay;
  document.querySelectorAll(".slot").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");
 });
-
-$("service").addEventListener("change",renderAvailability);
-$("date").addEventListener("change",renderAvailability);
+$("service").addEventListener("change",renderAvailability);$("date").addEventListener("change",renderAvailability);
 
 $("bookingForm").addEventListener("submit",async e=>{
  e.preventDefault();
- if(selected===null||!selectedBay){msg($("customerMsg"),"Choose an available time first.",false);return}
- const service=services.find(s=>s.id===$("service").value), date=$("date").value, end=selected+Number(service.duration);
- const latest=await getBookings(date);
- const dow=DAYS[new Date(date+"T12:00:00").getDay()]; const bay=Object.entries(bays).find(([id,b])=>id===selectedBay && b.active!==false && b.days?.[dow]?.open && b.days?.[dow]?.close);
- if(!bay || latest.some(b=>b.bayId===selectedBay && selected<b.end && end>b.start)){
-   msg($("customerMsg"),"That time was just booked. Please choose another time.",false);
-   return renderAvailability();
- }
- await addDoc(collection(db,"scheduler","settings","bookings"),{
-   date,start:selected,end,bayId:selectedBay,bayName:bay[1].name,
-   serviceId:service.id,serviceName:service.name,
-   customerName:$("name").value.trim(),phone:$("phone").value.trim(),
-   email:$("email").value.trim(),vehicle:$("vehicle").value.trim(),
-   notes:$("notes").value.trim(),createdAt:Timestamp.now()
- });
- msg($("customerMsg"),`Appointment booked for ${date} at ${timeText(selected)} in ${bay[1].name}.`,true);
- e.target.reset();$("date").value=date;selected=null;selectedBay=null;await renderAvailability();
+ if(selected===null||!selectedBay){showMsg($("customerMsg"),"Please choose an available time.");return}
+ try{
+   const service=services.find(s=>s.id===$("service").value),date=$("date").value,end=selected+Number(service.duration),dow=DAYS[new Date(date+"T12:00:00").getDay()];
+   const latest=await getBookings(date);
+   const bay=Object.entries(bays).find(([id,b])=>id===selectedBay&&b.active!==false&&b.days?.[dow]?.open&&b.days?.[dow]?.close);
+   if(!bay){showMsg($("customerMsg"),"That bay is no longer open. Please choose another time.");return renderAvailability()}
+   const schedule=bay[1].days[dow];
+   if(selected<mins(schedule.open)||end>mins(schedule.close)||latest.some(x=>x.bayId===selectedBay&&selected<x.end&&end>x.start)){
+     showMsg($("customerMsg"),"That time was just taken. Please choose another time.");return renderAvailability();
+   }
+   await addDoc(collection(db,"scheduler","settings","bookings"),{
+     date,start:selected,end,bayId:selectedBay,bayName:bay[1].name,
+     serviceId:service.id,serviceName:service.name,
+     customerName:$("name").value.trim(),phone:$("phone").value.trim(),
+     email:$("email").value.trim(),vehicle:$("vehicle").value.trim(),
+     notes:$("notes").value.trim(),createdAt:Timestamp.now()
+   });
+   showMsg($("customerMsg"),`Appointment booked for ${date} at ${timeText(selected)} in ${bay[1].name}.`,true);
+   e.target.reset();$("date").value=date;selected=selectedBay=null;await renderAvailability();
+ }catch(err){console.error(err);showMsg($("customerMsg"),"We couldn't complete the booking: "+err.message)}
 });
 
-function renderHoursAdmin(){
- $("hours").innerHTML=DAYS.map(d=>`<div class="dayrow"><strong>${d}</strong><input type="time" data-d="${d}" data-k="open" value="${hours[d]?.open||""}"><input type="time" data-d="${d}" data-k="close" value="${hours[d]?.close||""}"><button class="secondary" data-close="${d}" type="button">Closed</button></div>`).join("");
- $("hours").querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>{
-   const d=b.dataset.close;hours[d]={open:"",close:""};renderHoursAdmin();
- });
-}
-$("saveHours").onclick=async()=>{
- document.querySelectorAll("#hours input").forEach(i=>{hours[i.dataset.d][i.dataset.k]=i.value});
- await setDoc(doc(db,"scheduler","settings"),{hours,bays},{merge:true});
- await renderAvailability();msg($("hoursMsg"),"Shop hours saved to Firebase.",true);
-};
+$("ownerBtn").onclick=()=>{$("customer").classList.add("hidden");$("ownerLogin").classList.remove("hidden");$("ownerEmail").focus()};
+$("ownerBack").onclick=()=>{$("ownerLogin").classList.add("hidden");$("customer").classList.remove("hidden")};
+$("ownerLoginForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ try{
+   await signInWithEmailAndPassword(auth,$("ownerEmail").value.trim(),$("ownerPassword").value);
+   location.href="ownership.html";
+ }catch(err){showMsg($("ownerLoginMsg"),"Sign-in failed: "+err.message)}
+});
 
-async function renderServicesAdmin(){
- const snap=await getDocs(collection(db,"scheduler","settings","services"));
- const all=snap.docs.map(d=>({id:d.id,...d.data()}));
- $("services").innerHTML=all.map(s=>`<div class="service">
- <div><label>Job</label><input data-id="${s.id}" data-field="name" value="${escapeHtml(s.name||"")}"></div>
- <div><label>Minutes</label><input data-id="${s.id}" data-field="duration" type="number" min="5" step="5" value="${Number(s.duration)||60}"></div>
- <button class="secondary" data-delete="${s.id}" type="button">Delete</button></div>`).join("");
- $("services").querySelectorAll("[data-delete]").forEach(b=>b.onclick=async()=>{await deleteDoc(doc(db,"scheduler","settings","services",b.dataset.delete));await loadServices();await renderServicesAdmin();});
- $("services").querySelectorAll("[data-field]").forEach(i=>i.addEventListener("change",async()=>{
-   const id=i.dataset.id, fields={};
-   document.querySelectorAll(`[data-id="${id}"]`).forEach(x=>fields[x.dataset.field]=x.dataset.field==="duration"?Number(x.value):x.value.trim());
-   fields.active=true;await setDoc(doc(db,"scheduler","settings","services",id),fields,{merge:true});
-   await loadServices();msg($("servicesMsg"),"Job saved.",true);
- }));
-}
-$("addService").onclick=async()=>{
- const r=await addDoc(collection(db,"scheduler","settings","services"),{name:"New Job",duration:60,active:true});
- await loadServices();await renderServicesAdmin();
-};
-
-
-function renderBaysAdmin(){
- const daysShort={Sunday:"Sun",Monday:"Mon",Tuesday:"Tue",Wednesday:"Wed",Thursday:"Thu",Friday:"Fri",Saturday:"Sat"};
- const entries=Object.entries(bays);
- $("bays").innerHTML=`<div class="baygrid">${entries.map(([id,b])=>`
-   <div class="baycard">
-    <label>Bay name</label>
-    <input data-bay-name="${id}" value="${escapeHtml(b.name||id)}">
-    <div class="small" style="margin-top:8px">Open days</div>
-    <div class="baydays">${DAYS.map(d=>`<button type="button" class="bayday ${(b.days?.[d]!==false)?"on":""}" data-bay-day="${id}" data-day="${d}">${daysShort[d]}</button>`).join("")}</div>
-    <button type="button" class="secondary" data-bay-close="${id}" style="margin-top:10px">${b.active===false?"Enable Bay":"Disable Bay"}</button>
-   </div>`).join("")}</div>`;
- $("bays").querySelectorAll("[data-bay-day]").forEach(btn=>btn.onclick=async()=>{
-   const id=btn.dataset.bayDay, d=btn.dataset.day;
-   bays[id].days=bays[id].days||{};
-   bays[id].days[d]=!(bays[id].days[d]!==false);
-   await setDoc(doc(db,"scheduler","settings"),{bays},{merge:true});
-   renderBaysAdmin();await renderAvailability();
- });
- $("bays").querySelectorAll("[data-bay-close]").forEach(btn=>btn.onclick=async()=>{
-   const id=btn.dataset.bayClose;bays[id].active=bays[id].active===false;
-   await setDoc(doc(db,"scheduler","settings"),{bays},{merge:true});
-   renderBaysAdmin();await renderAvailability();
- });
- $("bays").querySelectorAll("[data-bay-name]").forEach(inp=>inp.addEventListener("change",async()=>{
-   const id=inp.dataset.bayName;bays[id].name=inp.value.trim()||id;
-   await setDoc(doc(db,"scheduler","settings"),{bays},{merge:true});
-   renderBaysAdmin();await renderAvailability();msg($("baysMsg"),"Bay settings saved.",true);
- }));
-}
-$("addBay").onclick=async()=>{
- const id="bay"+Date.now();
- bays[id]={name:"New Bay",active:true,days:{Sunday:false,Monday:true,Tuesday:true,Wednesday:true,Thursday:true,Friday:true,Saturday:true}};
- await setDoc(doc(db,"scheduler","settings"),{bays},{merge:true});
- renderBaysAdmin();await renderAvailability();msg($("baysMsg"),"Bay added.",true);
-};
-
-async function renderBookingsAdmin(){
- const snap=await getDocs(query(collection(db,"scheduler","settings","bookings"),orderBy("date")));
- const all=snap.docs.map(d=>({id:d.id,...d.data()}));
- if(!all.length){$("bookings").innerHTML='<p class="muted">No appointments yet.</p>';return}
- $("bookings").innerHTML=all.map(b=>`<div class="booking">
- <div><strong>${escapeHtml(b.customerName||"")}</strong><div class="small">${escapeHtml(b.phone||"")} • ${escapeHtml(b.vehicle||"")}</div></div>
- <div><strong>${b.date}</strong><div class="small">${timeText(b.start)}–${timeText(b.end)}</div></div>
- <div>${escapeHtml(b.serviceName||"")}<div class="small">${escapeHtml(b.bayName||b.bayId||"")} • ${escapeHtml(b.notes||"")}</div></div>
- <button class="secondary" data-cancel="${b.id}" type="button">Cancel</button>
- </div>`).join("");
- $("bookings").querySelectorAll("[data-cancel]").forEach(b=>b.onclick=async()=>{
-   if(confirm("Cancel this appointment?")){await deleteDoc(doc(db,"scheduler","settings","bookings",b.dataset.cancel));renderBookingsAdmin();}
- });
-}
-
-$("ownerBtn").onclick=async()=>{
- $("customer").classList.add("hidden");$("owner").classList.remove("hidden");
- renderHoursAdmin();renderBaysAdmin();await renderServicesAdmin();await renderBookingsAdmin();
-};
-$("backBtn").onclick=()=>{$("owner").classList.add("hidden");$("customer").classList.remove("hidden");renderAvailability()};
-
-try{
- await loadSettings();await loadServices();renderHoursAdmin();renderAvailability();
-}catch(err){
- console.error(err);
- document.body.insertAdjacentHTML("afterbegin",`<div class="msg bad" style="margin:15px">Firebase error: ${escapeHtml(err.message)}</div>`);
-}
+(async()=>{try{await loadSettings();await loadServices()}catch(err){console.error(err);document.body.insertAdjacentHTML("afterbegin",`<div class="msg bad" style="margin:12px">Firebase error: ${esc(err.message)}</div>`)}})();
 </script>
 </body>
 </html>
