@@ -64,3 +64,21 @@ This package uses the valid hierarchy:
 The screenshot error (`Invalid collection reference ... scheduler/bookings has 2 segments`) is fixed in this package.
 
 `firestore.rules` is included as a starting point. Review it before production; in particular, public booking reads expose booking records to the browser because the current static-site availability system needs to read existing appointments.
+
+
+## Multi-bay scheduling
+
+The scheduler supports multiple service bays.
+
+The owner can:
+- Add or disable bays.
+- Rename bays.
+- Turn each bay on/off for each day of the week.
+
+Customers do not need to pick a bay. When they choose a service and time, the system automatically finds an open bay that is free for the entire service duration. This means, for example, that if three bays are open, three appointments can run simultaneously at compatible times.
+
+Bookings store `bayId` and `bayName` so the owner calendar shows which bay was assigned.
+
+
+## Admin flow
+Click **Owner Sign In** on the customer page. Successful Firebase login redirects to `ownership.html`, where you can view scheduled appointments, choose the number of bays, enable/disable bays, and set each bay's open/close time separately for every day. Job durations are also controlled there.

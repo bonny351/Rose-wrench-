@@ -27,8 +27,9 @@ ul{color:#ccc;line-height:1.7}
     <ul>
       <li><code>scheduler/settings</code></li>
       <li>All documents in <code>scheduler/settings/services</code></li>
+      <li>Bay configuration in <code>scheduler/settings</code></li>
       <li>All documents in <code>scheduler/settings/bookings</code></li>
-      <li>Then creates the default shop hours and services used by the scheduler.</li>
+      <li>Then creates the default shop hours, 4 service bays, and services used by the scheduler.</li>
     </ul>
   </div>
 
@@ -77,6 +78,12 @@ const defaultServices = [
   {name:"Diagnostic",duration:60,active:true},
   {name:"General Repair",duration:180,active:true}
 ];
+const defaultBays = {
+  bay1:{name:"Bay 1",active:true,days:{Sunday:false,Monday:true,Tuesday:true,Wednesday:true,Thursday:true,Friday:true,Saturday:true}},
+  bay2:{name:"Bay 2",active:true,days:{Sunday:false,Monday:true,Tuesday:true,Wednesday:true,Thursday:true,Friday:true,Saturday:true}},
+  bay3:{name:"Bay 3",active:true,days:{Sunday:false,Monday:true,Tuesday:true,Wednesday:true,Thursday:true,Friday:true,Saturday:true}},
+  bay4:{name:"Bay 4",active:true,days:{Sunday:false,Monday:true,Tuesday:true,Wednesday:true,Thursday:true,Friday:true,Saturday:true}}
+};
 
 function log(msg){ status.textContent = msg; }
 
@@ -118,6 +125,7 @@ async function resetScheduler(){
 
     await setDoc(doc(db,"scheduler","settings"), {
       hours: defaultHours,
+      bays: defaultBays,
       updatedAt: serverTimestamp()
     });
 

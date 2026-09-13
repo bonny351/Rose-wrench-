@@ -1,118 +1,55 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Rose Wrench — Owner / Firebase Admin</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rose Wrench — Admin Dashboard</title>
 <style>
-body{margin:0;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif}
-.wrap{max-width:720px;margin:auto;padding:30px 18px 60px}
-.card{background:#151515;border:1px solid #2d2d2d;border-radius:14px;padding:20px;margin:14px 0}
-h1{margin:0 0 8px}.muted{color:#aaa}label{display:block;margin:14px 0 6px}
-input,select{width:100%;box-sizing:border-box;padding:12px;border-radius:8px;border:1px solid #444;background:#0e0e0e;color:#fff}
-button{width:100%;padding:13px;margin-top:12px;border:0;border-radius:9px;background:#d71920;color:white;font-weight:bold;cursor:pointer}
-button.secondary{background:#292929}.status{white-space:pre-wrap;background:#0c0c0c;border:1px solid #333;border-radius:9px;padding:13px;margin-top:14px}
-.danger{border-color:#772126}
-</style>
-</head>
-<body>
-<div class="wrap">
-<h1>Rose Wrench Owner Center</h1>
-<p class="muted">Owner controls for the Firebase appointment system.</p>
-
-<div class="card">
-<h2>Owner account</h2>
-<p class="muted">Create or sign into the Firebase Authentication account used to manage the shop scheduler.</p>
-<label>Email</label>
-<input id="email" type="email" placeholder="owner@example.com">
-<label>Password</label>
-<input id="password" type="password" placeholder="Password">
-<button id="signup">Create Owner Account</button>
-<button class="secondary" id="login">Sign In</button>
-<button class="secondary" id="logout">Sign Out</button>
-<div id="authStatus" class="status">Not signed in.</div>
-</div>
-
-<div class="card">
-<h2>Scheduler ownership</h2>
-<p class="muted">The signed-in Firebase user ID can be stored as the scheduler owner. Firestore Security Rules should use this owner ID to protect administrative writes.</p>
-<button id="claim">Claim Scheduler Ownership</button>
-<div id="ownerStatus" class="status">Owner status not checked.</div>
-</div>
-
-<div class="card danger">
-<h2>Reset scheduler</h2>
-<p class="muted">This removes scheduler bookings and services and recreates the defaults. It does not touch <code>products_bracelets</code>.</p>
-<button id="reset">Reset Scheduler</button>
-<div id="resetStatus" class="status">Waiting.</div>
-</div>
-</div>
-
+*{box-sizing:border-box}body{margin:0;background:#080808;color:#fff;font-family:system-ui,Arial}.wrap{max-width:1100px;margin:auto;padding:22px 16px 60px}.top{display:flex;justify-content:space-between;gap:12px;align-items:center}.card{background:#151515;border:1px solid #303030;border-radius:15px;padding:18px;margin:15px 0}h1{margin:0 0 5px}.muted,.small{color:#aaa}.small{font-size:12px}button{border:0;border-radius:9px;padding:11px 14px;background:#e21b23;color:#fff;font-weight:800;cursor:pointer}.secondary{background:#292929!important;border:1px solid #444!important}input,select{width:100%;padding:10px;background:#0d0d0d;color:#fff;border:1px solid #444;border-radius:8px}.bay{border:1px solid #333;border-radius:12px;padding:14px;margin:12px 0}.baytop{display:grid;grid-template-columns:1fr auto auto;gap:9px}.day{display:grid;grid-template-columns:100px 1fr 1fr auto;gap:8px;align-items:center;border-top:1px solid #292929;padding:8px 0}.appt{display:grid;grid-template-columns:110px 110px 1fr 1fr auto;gap:8px;align-items:center;border-top:1px solid #292929;padding:10px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.msg{padding:10px;border-radius:8px;margin-top:10px;background:#222}.good{background:#0d2815;color:#9dffa8}.bad{background:#350c0c;color:#ff9d9d}@media(max-width:700px){.top,.grid{display:block}.day,.appt,.baytop{grid-template-columns:1fr}.day button,.appt button{width:100%}}
+</style></head><body><div class="wrap">
+<div class="top"><div><h1>Rose Wrench Admin Dashboard</h1><div id="who" class="muted">Checking sign-in…</div></div><div><button id="home" class="secondary">Customer Site</button> <button id="logout">Sign Out</button></div></div>
+<section id="dashboard" class="hidden">
+<div class="card"><h2>Service Bays & Hours</h2><p class="muted">Choose how many bays are open and set each bay's opening and closing time separately for every day.</p><div id="bays"></div><button id="addBay">+ Add Bay</button><div id="bayMsg"></div></div>
+<div class="card"><h2>Jobs & Duration</h2><p class="muted">A job blocks one bay for this entire amount of time.</p><div id="services"></div><button id="addService">+ Add Job</button><div id="serviceMsg"></div></div>
+<div class="card"><h2>Scheduled</h2><div class="grid"><div><label>Date</label><input id="date" type="date"></div><div><label>Bay</label><select id="filter"><option value="">All bays</option></select></div></div><div id="calendar"></div></div>
+<div class="card"><h2>Reset Firebase Scheduler</h2><p class="muted">Deletes scheduler appointments/services and restores four bays. It does not touch <code>products_bracelets</code>.</p><button id="reset">RESET SCHEDULER</button><div id="resetMsg"></div></div>
+</section></div>
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import {getFirestore,doc,getDoc,setDoc,collection,getDocs,deleteDoc,serverTimestamp,addDoc} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-
-const firebaseConfig={
- apiKey:"AIzaSyCiZuaANb1lrgdn-aARGJ_TRhgzPPUug58",
- authDomain:"bracelets-and-color.firebaseapp.com",
- projectId:"bracelets-and-color",
- storageBucket:"bracelets-and-color.appspot.com",
- messagingSenderId:"382292570673",
- appId:"1:382292570673:web:1c966e2e7e8fc2efa31b10"
-};
-const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
-const $=id=>document.getElementById(id);
-function msg(id,s){$(id).textContent=s}
-
-const hours={
- Sunday:{open:"",close:""},Monday:{open:"08:00",close:"17:00"},
- Tuesday:{open:"08:00",close:"17:00"},Wednesday:{open:"08:00",close:"17:00"},
- Thursday:{open:"08:00",close:"17:00"},Friday:{open:"08:00",close:"17:00"},
- Saturday:{open:"09:00",close:"14:00"}
-};
-const services=[
- {name:"Oil Change",duration:45,active:true},
- {name:"Brake Service",duration:120,active:true},
- {name:"Diagnostic",duration:60,active:true},
- {name:"General Repair",duration:180,active:true}
-];
-
-onAuthStateChanged(auth,u=>{
- msg("authStatus",u?`Signed in as ${u.email}\nUID: ${u.uid}`:"Not signed in.");
-});
-
-$("signup").onclick=async()=>{
- try{await createUserWithEmailAndPassword(auth,$("email").value,$("password").value);msg("authStatus","Owner account created and signed in.")}catch(e){msg("authStatus",e.message)}
-};
-$("login").onclick=async()=>{
- try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value);msg("authStatus","Signed in.")}catch(e){msg("authStatus",e.message)}
-};
-$("logout").onclick=()=>signOut(auth);
-
-$("claim").onclick=async()=>{
- const u=auth.currentUser;
- if(!u){msg("ownerStatus","Sign in first.");return}
- try{
-   await setDoc(doc(db,"scheduler","settings"),{ownerUid:u.uid,updatedAt:serverTimestamp()},{merge:true});
-   msg("ownerStatus",`Scheduler owner set to ${u.email}\nUID: ${u.uid}`);
- }catch(e){msg("ownerStatus",e.message)}
-};
-
-$("reset").onclick=async()=>{
- const u=auth.currentUser;
- if(!u){msg("resetStatus","Sign in as the owner first.");return}
- if(!confirm("Reset scheduler data and recreate defaults?"))return;
- try{
-   const bs=await getDocs(collection(db,"scheduler","settings","bookings"));
-   for(const d of bs.docs)await deleteDoc(d.ref);
-   const ss=await getDocs(collection(db,"scheduler","settings","services"));
-   for(const d of ss.docs)await deleteDoc(d.ref);
-   await setDoc(doc(db,"scheduler","settings"),{hours,ownerUid:u.uid,updatedAt:serverTimestamp()});
-   for(const s of services)await addDoc(collection(db,"scheduler","settings","services"),s);
-   msg("resetStatus","Reset complete. Defaults restored and ownership retained.");
- }catch(e){msg("resetStatus",e.message)}
-};
-</script>
-</body>
-</html>
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import{getAuth,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import{getFirestore,doc,getDoc,setDoc,collection,getDocs,deleteDoc,addDoc,serverTimestamp,query,where}from"https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyCiZuaANb1lrgdn-aARGJ_TRhgzPPUug58",authDomain:"bracelets-and-color.firebaseapp.com",projectId:"bracelets-and-color",storageBucket:"bracelets-and-color.appspot.com",messagingSenderId:"382292570673",appId:"1:382292570673:web:1c966e2e7e8fc2efa31b10"};
+const app=initializeApp(cfg),auth=getAuth(app),db=getFirestore(app),D=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],$=id=>document.getElementById(id),esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+const defH={Sunday:{open:"",close:""},Monday:{open:"08:00",close:"17:00"},Tuesday:{open:"08:00",close:"17:00"},Wednesday:{open:"08:00",close:"17:00"},Thursday:{open:"08:00",close:"17:00"},Friday:{open:"08:00",close:"17:00"},Saturday:{open:"09:00",close:"14:00"}};
+const defB=()=>Object.fromEntries([1,2,3,4].map(i=>["bay"+i,{name:"Bay "+i,active:true,days:Object.fromEntries(D.map(d=>[d,{...defH[d]}]))}]));
+const defS=[["Oil Change",45],["Brake Service",120],["Diagnostic",60],["General Repair",180]];
+let bays={},hours=defH,user=null;
+const fmt=n=>{let h=Math.floor(n/60),m=n%60,a=h>=12?"PM":"AM";h=h%12||12;return`${h}:${String(m).padStart(2,"0")} ${a}`};
+function msg(id,t,g=true){$(id).className="msg "+(g?"good":"bad");$(id).textContent=t}
+async function save(){await setDoc(doc(db,"scheduler","settings"),{hours,bays,updatedAt:serverTimestamp()},{merge:true});msg("bayMsg","Bay schedule saved.")}
+function normalize(){for(const b of Object.values(bays)){b.days=b.days||{};for(const d of D){if(typeof b.days[d]==="boolean")b.days[d]=b.days[d]?{...defH[d]}:{open:"",close:""};if(!b.days[d])b.days[d]={open:"",close:""}}}}
+function renderBays(){
+ $("bays").innerHTML=Object.entries(bays).map(([id,b])=>`<div class="bay"><div class="baytop"><div><label>Bay Name</label><input data-name="${id}" value="${esc(b.name)}"></div><button class="secondary" data-copy="${id}">Copy Monday</button><button data-disable="${id}">${b.active===false?"Enable":"Disable"}</button></div>${D.map(d=>{let x=b.days[d],on=x.open&&x.close;return`<div class="day"><strong>${d}</strong><input type="time" data-open="${id}" data-day="${d}" value="${x.open}"><input type="time" data-close="${id}" data-day="${d}" value="${x.close}"><button class="secondary" data-toggle="${id}" data-day="${d}">${on?"Close":"Open"}</button></div>`}).join("")}</div>`).join("");
+ $("filter").innerHTML='<option value="">All bays</option>'+Object.entries(bays).map(([id,b])=>`<option value="${id}">${esc(b.name)}</option>`).join("");
+ document.querySelectorAll("[data-name]").forEach(x=>x.onchange=async()=>{bays[x.dataset.name].name=x.value.trim()||x.dataset.name;await save();renderBays()});
+ document.querySelectorAll("[data-disable]").forEach(x=>x.onclick=async()=>{let b=bays[x.dataset.disable];b.active=b.active===false;await save();renderBays()});
+ document.querySelectorAll("[data-toggle]").forEach(x=>x.onclick=async()=>{let b=bays[x.dataset.toggle],d=x.dataset.day;b.days[d]=b.days[d].open&&b.days[d].close?{open:"",close:""}:{...defH[d]};await save();renderBays()});
+ document.querySelectorAll("[data-open]").forEach(x=>x.onchange=async()=>{bays[x.dataset.open].days[x.dataset.day].open=x.value;await save()});
+ document.querySelectorAll("[data-close]").forEach(x=>x.onchange=async()=>{bays[x.dataset.close].days[x.dataset.day].close=x.value;await save()});
+ document.querySelectorAll("[data-copy]").forEach(x=>x.onclick=async()=>{let b=bays[x.dataset.copy],m={...b.days.Monday};b.days=Object.fromEntries(D.map(d=>[d,{...m}]));b.days.Sunday={open:"",close:""};await save();renderBays()});
+}
+$("addBay").onclick=async()=>{let id="bay"+Date.now();bays[id]={name:"Bay "+(Object.keys(bays).length+1),active:true,days:Object.fromEntries(D.map(d=>[d,{...defH[d]}]))};await save();renderBays()};
+async function services(){
+ const snap=await getDocs(collection(db,"scheduler","settings","services"));const a=snap.docs.map(d=>({id:d.id,...d.data()}));
+ $("services").innerHTML=a.map(s=>`<div class="day"><div><label>Job</label><input data-sn="${s.id}" value="${esc(s.name)}"></div><div><label>Minutes</label><input type="number" min="5" step="5" data-sd="${s.id}" value="${s.duration}"></div><button class="secondary" data-del="${s.id}">Delete</button></div>`).join("");
+ document.querySelectorAll("[data-del]").forEach(x=>x.onclick=async()=>{await deleteDoc(doc(db,"scheduler","settings","services",x.dataset.del));await services()});
+ document.querySelectorAll("[data-sn],[data-sd]").forEach(x=>x.onchange=async()=>{let id=x.dataset.sn||x.dataset.sd;await setDoc(doc(db,"scheduler","settings","services",id),{name:$(`[data-sn="${id}"]`).value.trim(),duration:Number($(`[data-sd="${id}"]`).value),active:true},{merge:true});await services();msg("serviceMsg","Job saved.")});
+}
+$("addService").onclick=async()=>{await addDoc(collection(db,"scheduler","settings","services"),{name:"New Job",duration:60,active:true});services()};
+async function calendar(){
+ const date=$("date").value;if(!date)return;let snap=await getDocs(query(collection(db,"scheduler","settings","bookings"),where("date","==",date))),a=snap.docs.map(d=>({id:d.id,...d.data()})).sort((x,y)=>x.start-y.start),f=$("filter").value;if(f)a=a.filter(x=>x.bayId===f);
+ $("calendar").innerHTML=a.length?a.map(x=>`<div class="appt"><strong>${fmt(x.start)}–${fmt(x.end)}</strong><strong>${esc(x.bayName||x.bayId)}</strong><span>${esc(x.serviceName)}</span><span>${esc(x.customerName)}<br><small>${esc(x.phone)} • ${esc(x.vehicle)}</small></span><button class="secondary" data-cancel="${x.id}">Cancel</button></div>`).join(""):'<div class="msg">No appointments scheduled.</div>';
+ document.querySelectorAll("[data-cancel]").forEach(x=>x.onclick=async()=>{if(confirm("Cancel appointment?")){await deleteDoc(doc(db,"scheduler","settings","bookings",x.dataset.cancel));calendar()}});
+}
+$("date").value=new Date().toISOString().slice(0,10);$("date").onchange=calendar;$("filter").onchange=calendar;
+$("home").onclick=()=>location.href="index.html";$("logout").onclick=async()=>{await signOut(auth);location.href="index.html"};
+$("reset").onclick=async()=>{if(!confirm("Delete all scheduler bookings and services?"))return;try{for(const d of (await getDocs(collection(db,"scheduler","settings","bookings"))).docs)await deleteDoc(d.ref);for(const d of (await getDocs(collection(db,"scheduler","settings","services"))).docs)await deleteDoc(d.ref);bays=defB();hours=structuredClone(defH);await setDoc(doc(db,"scheduler","settings"),{hours,bays,ownerUid:user.uid,updatedAt:serverTimestamp()});for(const [name,duration] of defS)await addDoc(collection(db,"scheduler","settings","services"),{name,duration,active:true});msg("resetMsg","Reset complete.");await boot()}catch(e){msg("resetMsg",e.message,false)}};
+async function boot(){let st=await getDoc(doc(db,"scheduler","settings"));if(st.exists()){hours=st.data().hours||hours;bays=st.data().bays||defB()}else{bays=defB();await setDoc(doc(db,"scheduler","settings"),{hours,bays,ownerUid:user.uid})}normalize();renderBays();await services();await calendar()}
+onAuthStateChanged(auth,async u=>{user=u;if(!u){location.href="index.html";return}$("who").textContent=`Signed in as ${u.email}`;$("dashboard").classList.remove("hidden");try{let st=await getDoc(doc(db,"scheduler","settings")),owner=st.exists()?st.data().ownerUid:null;if(owner&&owner!==u.uid){$("dashboard").innerHTML='<div class="card"><h2>Not authorized</h2><p>This Firebase account is not the shop owner.</p></div>';return}if(!owner)await setDoc(doc(db,"scheduler","settings"),{ownerUid:u.uid},{merge:true});await boot()}catch(e){$("dashboard").innerHTML=`<div class="card"><h2>Firebase error</h2><p>${esc(e.message)}</p></div>`}});
+</script></body></html>
