@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rose Wrench — Owner / Firebase Admin</title>
+<style>
+body{margin:0;background:#080808;color:#f5f5f5;font-family:Arial,sans-serif}
+.wrap{max-width:720px;margin:auto;padding:30px 18px 60px}
+.card{background:#151515;border:1px solid #2d2d2d;border-radius:14px;padding:20px;margin:14px 0}
+h1{margin:0 0 8px}.muted{color:#aaa}label{display:block;margin:14px 0 6px}
+input,select{width:100%;box-sizing:border-box;padding:12px;border-radius:8px;border:1px solid #444;background:#0e0e0e;color:#fff}
+button{width:100%;padding:13px;margin-top:12px;border:0;border-radius:9px;background:#d71920;color:white;font-weight:bold;cursor:pointer}
+button.secondary{background:#292929}.status{white-space:pre-wrap;background:#0c0c0c;border:1px solid #333;border-radius:9px;padding:13px;margin-top:14px}
+.danger{border-color:#772126}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Rose Wrench Owner Center</h1>
+<p class="muted">Owner controls for the Firebase appointment system.</p>
+
+<div class="card">
+<h2>Owner account</h2>
+<p class="muted">Create or sign into the Firebase Authentication account used to manage the shop scheduler.</p>
+<label>Email</label>
+<input id="email" type="email" placeholder="owner@example.com">
+<label>Password</label>
+<input id="password" type="password" placeholder="Password">
+<button id="signup">Create Owner Account</button>
+<button class="secondary" id="login">Sign In</button>
+<button class="secondary" id="logout">Sign Out</button>
+<div id="authStatus" class="status">Not signed in.</div>
+</div>
+
+<div class="card">
+<h2>Scheduler ownership</h2>
+<p class="muted">The signed-in Firebase user ID can be stored as the scheduler owner. Firestore Security Rules should use this owner ID to protect administrative writes.</p>
+<button id="claim">Claim Scheduler Ownership</button>
+<div id="ownerStatus" class="status">Owner status not checked.</div>
+</div>
+
+<div class="card danger">
+<h2>Reset scheduler</h2>
+<p class="muted">This removes scheduler bookings and services and recreates the defaults. It does not touch <code>products_bracelets</code>.</p>
+<button id="reset">Reset Scheduler</button>
+<div id="resetStatus" class="status">Waiting.</div>
+</div>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,collection,getDocs,deleteDoc,serverTimestamp,addDoc} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyCiZuaANb1lrgdn-aARGJ_TRhgzPPUug58",
+ authDomain:"bracelets-and-color.firebaseapp.com",
+ projectId:"bracelets-and-color",
+ storageBucket:"bracelets-and-color.appspot.com",
+ messagingSenderId:"382292570673",
+ appId:"1:382292570673:web:1c966e2e7e8fc2efa31b10"
+};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const $=id=>document.getElementById(id);
+function msg(id,s){$(id).textContent=s}
+
+const hours={
+ Sunday:{open:"",close:""},Monday:{open:"08:00",close:"17:00"},
+ Tuesday:{open:"08:00",close:"17:00"},Wednesday:{open:"08:00",close:"17:00"},
+ Thursday:{open:"08:00",close:"17:00"},Friday:{open:"08:00",close:"17:00"},
+ Saturday:{open:"09:00",close:"14:00"}
+};
+const services=[
+ {name:"Oil Change",duration:45,active:true},
+ {name:"Brake Service",duration:120,active:true},
+ {name:"Diagnostic",duration:60,active:true},
+ {name:"General Repair",duration:180,active:true}
+];
+
+onAuthStateChanged(auth,u=>{
+ msg("authStatus",u?`Signed in as ${u.email}\nUID: ${u.uid}`:"Not signed in.");
+});
+
+$("signup").onclick=async()=>{
+ try{await createUserWithEmailAndPassword(auth,$("email").value,$("password").value);msg("authStatus","Owner account created and signed in.")}catch(e){msg("authStatus",e.message)}
+};
+$("login").onclick=async()=>{
+ try{await signInWithEmailAndPassword(auth,$("email").value,$("password").value);msg("authStatus","Signed in.")}catch(e){msg("authStatus",e.message)}
+};
+$("logout").onclick=()=>signOut(auth);
+
+$("claim").onclick=async()=>{
+ const u=auth.currentUser;
+ if(!u){msg("ownerStatus","Sign in first.");return}
+ try{
+   await setDoc(doc(db,"scheduler","settings"),{ownerUid:u.uid,updatedAt:serverTimestamp()},{merge:true});
+   msg("ownerStatus",`Scheduler owner set to ${u.email}\nUID: ${u.uid}`);
+ }catch(e){msg("ownerStatus",e.message)}
+};
+
+$("reset").onclick=async()=>{
+ const u=auth.currentUser;
+ if(!u){msg("resetStatus","Sign in as the owner first.");return}
+ if(!confirm("Reset scheduler data and recreate defaults?"))return;
+ try{
+   const bs=await getDocs(collection(db,"scheduler/bookings"));
+   for(const d of bs.docs)await deleteDoc(d.ref);
+   const ss=await getDocs(collection(db,"scheduler/services"));
+   for(const d of ss.docs)await deleteDoc(d.ref);
+   await setDoc(doc(db,"scheduler","settings"),{hours,ownerUid:u.uid,updatedAt:serverTimestamp()});
+   for(const s of services)await addDoc(collection(db,"scheduler/services"),s);
+   msg("resetStatus","Reset complete. Defaults restored and ownership retained.");
+ }catch(e){msg("resetStatus",e.message)}
+};
+</script>
+</body>
+</html>

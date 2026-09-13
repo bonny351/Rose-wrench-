@@ -38,3 +38,14 @@ GitHub Pages is static hosting. Firebase client configuration is normally includ
 Do not make production Firestore rules allow anyone to delete or overwrite scheduler data. The current reset utility is intended for setup/testing and should be protected or removed before public production use.
 
 The scheduler also needs a transaction/locking strategy for guaranteed double-booking prevention when two customers book simultaneously.
+
+
+## Owner / Firebase Admin Page
+
+`ownership.html` provides:
+- Firebase Authentication sign-up/sign-in
+- Owner UID assignment in `scheduler/settings`
+- Owner-only reset workflow
+- Scheduler reset without deleting `products_bracelets`
+
+For production, configure Firestore Security Rules so only the authenticated owner UID can write settings/services/bookings administration data. Do not rely on hiding the page URL for security.
